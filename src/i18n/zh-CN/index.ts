@@ -7,6 +7,13 @@ import { ManagerTranslation } from './pages/ManagerTranslation';
 import {EnumTranslation} from "./enums/EnumTranslation";
 import {HelpTranslation} from './pages/HelpTranslation';
 import {SettingsTranslation} from "./pages/SettingsTranslation";
+import { ConfigEditorTranslation } from './pages/ConfigEditorTranslation';
+import { DownloadMonitorTranslation } from './pages/DownloadMonitorTranslation';
+import { LinuxSetupTranslation } from './pages/LinuxSetupTranslation';
+import { Error404Translation } from './pages/Error404Translation';
+import { ModListStatusTranslation } from './modListStatus/ModListStatusTranslation';
+import { BannerTranslation } from './banners/BannerTranslation';
+import { ModalTranslation } from './modals/ModalTranslation';
 
 const message: MessageFormat = {
     metadata: {
@@ -21,8 +28,15 @@ const message: MessageFormat = {
             manager: ManagerTranslation,
             help: HelpTranslation,
             settings: SettingsTranslation,
+            configEditor: ConfigEditorTranslation,
+            downloadMonitor: DownloadMonitorTranslation,
+            linuxSetup: LinuxSetupTranslation,
+            error404: Error404Translation
         },
         platforms: PlatformTranslation,
+        modListStatus: ModListStatusTranslation,
+        banners: BannerTranslation,
+        modals: ModalTranslation,
         enums: EnumTranslation,
     }
 };
@@ -37,5 +51,5 @@ export const dateTimeFormat: DateTimeFormat = {
     },
 }
 
-// Exported separately to enforce validation on exported type
+// Exported separately to enforce validation on the exported type
 export default message;

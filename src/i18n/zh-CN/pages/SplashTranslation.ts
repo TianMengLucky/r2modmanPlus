@@ -27,7 +27,7 @@ export const SplashTranslation: SplashMessageFormat = {
                         `,
             havingTrouble: {
                 title: '遇到麻烦了吗？',
-                body: '请将错误截图发送至r2modman Discord服务器的支持频道。',
+                body: '请将错误截图发送至 {appName} Discord 服务器的支持频道。',
                 serverLinkText: '加入 {appName} Discord 服务器',
             },
         },
