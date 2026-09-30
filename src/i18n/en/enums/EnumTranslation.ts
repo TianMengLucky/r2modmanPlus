@@ -18,7 +18,7 @@ export const EnumTranslation: EnumMessageFormat = {
         LAST: 'Last',
     },
     sortingStyle: {
-        DEFAULT: 'Default',
+        RELEVANCE: 'Relevance',
         LAST_UPDATED: 'Last updated',
         ALPHABETICAL: 'Alphabetical',
         DOWNLOADS: 'Download count',
@@ -28,5 +28,9 @@ export const EnumTranslation: EnumMessageFormat = {
         AUTO: 'Auto',
         NATIVE: 'Native',
         PROTON: 'Proton',
+    },
+    sortConfigFile: {
+        NAME: 'Name',
+        LAST_UPDATED: 'Last updated'
     }
 }

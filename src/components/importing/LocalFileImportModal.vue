@@ -3,43 +3,43 @@
         <ModalCard id="import-mod-from-file-modal" :can-close="true" @close-modal="closeModal" :is-active="isOpen">
             <template v-slot:header>
                 <h2 class='modal-title'>
-                    {{ t('translations.pages.manager.modals.importLocalMod.title') }}
+                    {{ t('translations.modals.importLocalMod.title') }}
                 </h2>
             </template>
             <template v-slot:footer v-if="fileToImport === null">
                 <button class="button is-info" @click="selectFile">
-                    {{ t('translations.pages.manager.modals.importLocalMod.actions.selectFile') }}
+                    {{ t('translations.modals.importLocalMod.actions.selectFile') }}
                 </button>
             </template>
             <template v-slot:footer v-else>
                 <button class="button is-info" @click="importFile">
-                    {{ t('translations.pages.manager.modals.importLocalMod.actions.importLocalMod') }}
+                    {{ t('translations.modals.importLocalMod.actions.importLocalMod') }}
                 </button>
             </template>
 
             <template slot="body" v-if="fileToImport === null">
                 <template v-if="!waitingForSelection">
                     <p>
-                        {{ t('translations.pages.manager.modals.importLocalMod.content.instructToSelect') }}
+                        {{ t('translations.modals.importLocalMod.content.instructToSelect') }}
                     </p>
                     <p>
-                        {{ t('translations.pages.manager.modals.importLocalMod.content.dataEntryInfo') }}
+                        {{ t('translations.modals.importLocalMod.content.dataEntryInfo') }}
                     </p>
                 </template>
                 <template v-else>
                     <p>
-                        {{ t('translations.pages.manager.modals.importLocalMod.content.waitingForSelection') }}
+                        {{ t('translations.modals.importLocalMod.content.waitingForSelection') }}
                     </p>
                 </template>
             </template>
 
             <template v-slot:body v-if="fileToImport !== null">
                 <div class="notification is-warning" v-if="validationMessage !== null">
-                    <p>{{ t(`translations.pages.manager.modals.importLocalMod.validationMessages.${validationMessage}`) }}</p>
+                    <p>{{ t(`translations.modals.importLocalMod.validationMessages.${validationMessage}`) }}</p>
                 </div>
                 <div class="input-group input-group--flex margin-right">
                     <label for="mod-name" class="non-selectable">
-                        {{ t('translations.pages.manager.modals.importLocalMod.content.form.modName.label') }}
+                        {{ t('translations.modals.importLocalMod.content.form.modName.label') }}
                     </label>
                     <input
                         v-model="modName"
@@ -47,14 +47,14 @@
                         class="input margin-right"
                         ref="mod-name"
                         type="text"
-                        :placeholder="t('translations.pages.manager.modals.importLocalMod.content.form.modName.placeholder')"
+                        :placeholder="t('translations.modals.importLocalMod.content.form.modName.placeholder')"
                         autocomplete="off"
                     />
                 </div>
                 <br/>
                 <div class="input-group input-group--flex margin-right">
                     <label for="mod-author" class="non-selectable">
-                        {{ t('translations.pages.manager.modals.importLocalMod.content.form.modAuthor.label') }}
+                        {{ t('translations.modals.importLocalMod.content.form.modAuthor.label') }}
                     </label>
                     <input
                         v-model="modAuthor"
@@ -62,14 +62,14 @@
                         class="input margin-right"
                         ref="mod-author"
                         type="text"
-                        :placeholder="t('translations.pages.manager.modals.importLocalMod.content.form.modAuthor.placeholder')"
+                        :placeholder="t('translations.modals.importLocalMod.content.form.modAuthor.placeholder')"
                         autocomplete="off"
                     />
                 </div>
                 <br/>
                 <div class="input-group input-group--flex margin-right">
                     <label for="mod-author" class="non-selectable">
-                        {{ t('translations.pages.manager.modals.importLocalMod.content.form.description.label') }}
+                        {{ t('translations.modals.importLocalMod.content.form.description.label') }}
                     </label>
                     <input
                         v-model="modDescription"
@@ -77,31 +77,31 @@
                         class="input margin-right"
                         ref="mod-description"
                         type="text"
-                        :placeholder="t('translations.pages.manager.modals.importLocalMod.content.form.description.placeholder')"
+                        :placeholder="t('translations.modals.importLocalMod.content.form.description.placeholder')"
                         autocomplete="off"
                     />
                 </div>
                 <hr/>
                 <h3 class="title is-6">
-                    {{ t('translations.pages.manager.modals.importLocalMod.content.form.version.label') }}
+                    {{ t('translations.modals.importLocalMod.content.form.version.label') }}
                 </h3>
                 <div class="input-group input-group--flex margin-right non-selectable">
                     <div class="is-flex">
                         <div class="margin-right margin-right--half-width">
                             <label for="mod-version-major">
-                                {{ t('translations.pages.manager.modals.importLocalMod.content.form.version.majorLabel') }}
+                                {{ t('translations.modals.importLocalMod.content.form.version.majorLabel') }}
                             </label>
                             <input id="mod-version-major" ref="mod-version" class="input margin-right" type="number" v-model="modVersionMajor" min="0" step="1" placeholder="0"/>
                         </div>
                         <div class="margin-right margin-right--half-width">
                             <label for="mod-version-minor">
-                                {{ t('translations.pages.manager.modals.importLocalMod.content.form.version.minorLabel') }}
+                                {{ t('translations.modals.importLocalMod.content.form.version.minorLabel') }}
                             </label>
                             <input id="mod-version-minor" ref="mod-version" class="input margin-right" type="number" v-model="modVersionMinor" min="0" step="1" placeholder="0"/>
                         </div>
                         <div>
                             <label for="mod-version-patch">
-                                {{ t('translations.pages.manager.modals.importLocalMod.content.form.version.patchLabel') }}
+                                {{ t('translations.modals.importLocalMod.content.form.version.patchLabel') }}
                             </label>
                             <input id="mod-version-patch" ref="mod-version" class="input margin-right" type="number" v-model="modVersionPatch" min="0" step="1" placeholder="0"/>
                         </div>
@@ -156,12 +156,12 @@ let resultingManifest = new ManifestV2();
 async function selectFile() {
     waitingForSelection.value = true;
     InteractionProvider.instance.selectFile({
-        buttonLabel: "Select file",
-        title: "Import local mod from file",
+        buttonLabel: t('translations.modals.importLocalMod.actions.selectFile'),
+        title: t('translations.modals.importLocalMod.dialogTitle'),
         filters: []
     }).then(value => {
         if (value.length > 0) {
-            fileToImport.value = value[0];
+            fileToImport.value = value[0]!;
             assumeDefaults();
         } else {
             waitingForSelection.value = false;
@@ -256,28 +256,28 @@ function inferFieldValuesFromFile(file: string): ImportFieldAttributes {
     }
 
     if (hyphenSeparated.length === 3) {
-        data.modAuthor = hyphenSeparated[0];
-        data.modName = hyphenSeparated[1];
-        const modVersion = santizeVersionNumber(hyphenSeparated[2]).toString().split(".");
+        data.modAuthor = hyphenSeparated[0]!;
+        data.modName = hyphenSeparated[1]!;
+        const modVersion = santizeVersionNumber(hyphenSeparated[2]!).toString().split(".");
         data.modVersionMajor = Number(modVersion[0]);
         data.modVersionMinor = Number(modVersion[1]);
         data.modVersionPatch = Number(modVersion[2]);
     } else if (hyphenSeparated.length === 2) {
-        data.modName = hyphenSeparated[0];
-        const modVersion = santizeVersionNumber(hyphenSeparated[1]).toString().split(".");
+        data.modName = hyphenSeparated[0]!;
+        const modVersion = santizeVersionNumber(hyphenSeparated[1]!).toString().split(".");
         data.modVersionMajor = Number(modVersion[0]);
         data.modVersionMinor = Number(modVersion[1]);
         data.modVersionPatch = Number(modVersion[2]);
     } else if (underscoreSeparated.length === 3) {
-        data.modAuthor = underscoreSeparated[0];
-        data.modName = underscoreSeparated[1];
-        const modVersion = santizeVersionNumber(underscoreSeparated[2]).toString().split(".");
+        data.modAuthor = underscoreSeparated[0]!;
+        data.modName = underscoreSeparated[1]!;
+        const modVersion = santizeVersionNumber(underscoreSeparated[2]!).toString().split(".");
         data.modVersionMajor = Number(modVersion[0]);
         data.modVersionMinor = Number(modVersion[1]);
         data.modVersionPatch = Number(modVersion[2]);
     } else if (underscoreSeparated.length === 2) {
-        data.modName = underscoreSeparated[0];
-        const modVersion = santizeVersionNumber(underscoreSeparated[1]).toString().split(".");
+        data.modName = underscoreSeparated[0]!;
+        const modVersion = santizeVersionNumber(underscoreSeparated[1]!).toString().split(".");
         data.modVersionMajor = Number(modVersion[0]);
         data.modVersionMinor = Number(modVersion[1]);
         data.modVersionPatch = Number(modVersion[2]);

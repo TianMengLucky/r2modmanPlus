@@ -1,3 +1,375 @@
+### 3.2.20
+
+#### Multiple Languages (i18n)
+
+We now support multiple languages! Add support for your language by contributing to: https://github.com/ebkr/r2modmanPlus/
+
+Our initial supported languages on 3.2.20 are:
+- English (like always)
+- French
+
+French is still considered a work in progress, but is fully functional. The only exception currently are error message translations, which are still in English.
+
+#### Performance Improvements
+
+- Fixed a regression caused in 3.2.19 by the feature that warns when mods are removed.
+- Massively improved performance when installing/uninstalling mods in large profiles.
+- Faster mod sorting
+
+#### New Additions
+
+- Refresh indicator to show when the mod list is updating + the percentage of progress.
+
+#### Games Added
+
+- AI LIMIT
+- Among Us 3D
+- BOMBANANA!
+- Cast N Chill
+- Cult of PiN
+- Cuphead
+- Electoral Carnage
+- Holdfast: Nations At War
+- How to Fish
+- Inferno Protocol
+- Last Pirates: Die Together
+- Lazy Witch's Factory
+- Limitless Survivor
+- Moonlighter
+- Nucleares
+- Offscreen
+- Re:Legend
+- Rhythm Doctor
+- Stonewards
+- Survival: Fountain of Youth
+- The Message from Deep Space
+- The Sexy Brutale
+- Tiny Rogues
+- Tunguska: The Visitation
+
+### 3.2.19
+
+#### Flatpak Remote Repository
+
+With an incredible amount of work and support from [@TB516](https://github.com/TB516), the Flatpak remote repository is now available for Linux users.
+
+This now means that Flatpak users can finally update r2modman like a normal Flatpak application.
+Updates via Flatpak are also much smaller and quicker to install.
+
+You can install it via the included `flatpak-setup.sh` script or manually with these commands:
+
+```bash
+flatpak remote-add --if-not-exists r2builds https://r2builds.ebkr.dev/flatpak/r2modman.flatpakrepo
+flatpak install -y r2builds io.github.ebkr.r2modman
+```
+
+The README has more detailed setup information for Flatpaks if needed.
+
+#### Improvements
+
+- Redesigned settings screen, including:
+    - Fewer items / actions are grouped together.
+    - Smarter search.
+- Peak memory usage reduction.
+- You will now be informed when packages you have installed are removed from Thunderstore.
+- Improved online mod list searching:
+    - "Default" has been renamed to "Relevance"
+    - Relevance searches now bump results matching name/author exactly.
+- Spaces and underscores are now ignored in search results, meaning you don't need to remember the exact package name.
+- Folders containing special characters can now be opened via settings.
+
+
+#### Games Added
+
+- A Dance of Fire and Ice
+- Big Walk
+- Block Story
+- Cairn
+- Grain Rot
+- Home Safety Hotline
+- Inside the Backrooms
+- Iron Nest
+- LumenTale: Memories of Trey
+- Shift At Midnight
+- Sineus Arena Survivors
+- Slip & Skid
+- Stick Fight: The Game
+- SUPERHOT
+- SUPERHOT: MIND CONTROL DELETE
+- The Lab
+- Waterpark Simulator
+- Wobbly Life
+
+### 3.2.18
+
+#### Performance Improvements
+
+- There have been significant performance improvements to memory usage. Idle memory usage results in ~400 MB total on Lethal Company for example.
+- Additionally CPU cycles have been reduced, resulting in faster completion of tasks and a lower power usage.
+
+#### Visual Tweaks
+
+- "New" row added to Game Selection
+- "Hero" elements (title blocks), are no longer fixed to the top of the screen.
+- "Start modded" action no longer changes size when going to the Online section.
+
+#### Games Added
+
+- Bloons TD 6
+- Blue Prince
+- Book of Travels
+- Burglin' Gnomes
+- Everything is Crab
+- Goblin Cleanup
+- GRIME
+- Lucky Shot
+- MECCHA CHAMELEON
+- Paralives
+- Pikuniku
+- Romestead
+
+### 3.2.17
+
+#### Automatic Game Additions
+
+For the longest time you have needed to update the manager in order to get new games, and each game addition required me
+to create a release.
+
+It's automatic now. You'll be able to access any **supported** games given your mod manager version.
+
+
+### 3.2.16
+
+#### UI Changes
+
+- The "Game Selection" screen has been re-styled to:
+  - Add a favourites group
+  - Make game names easier to find and read
+  - Make the favourite action always visible
+  - Allow games to still be accessible if made hidden at any point in the future
+-
+
+#### Fixes
+
+- Titanfall 2 / Northstar can be launched from the manager again (thanks to @TB516)
+- Various style alignment issues fixed
+- Beetleball no longer recommends a fixed version of MelonLoader
+- Essential mod loader files are now synced on mod installs rather than on "Start modded" (thanks to @NikkelM)
+- Scrap Mechanic launch fixes (thanks to @BenMcAvoy)
+
+#### Games added
+
+- Sledding game
+- Hot Lava
+- Angry Birds VR: Isle of Pigs
+- Project Gorgon
+- Puttler
+- Island Market Simulator
+- SIDE EFFECTS
+- Modulus: Factory Automation
+- Roadside Research
+- MINOS
+- BRUTALISTICK VR
+- Super Psycho Baseball
+- Getting Over It
+- The Spell Brigade
+- Vampire Crawlers
+- Voodoo Fishin
+- Project Arrhythmia renamed to Afterbeat
+- Cave Crawlers
+- Gamble with your Friends
+- Miside Zero
+- Lootun
+- Windrose
+
+### 3.2.15
+
+#### UI Changes
+
+- Includes a bottom bar which allows for:
+  - Faster game changing
+  - Faster profile switching
+  - Easier access to profile exporting
+- The "Start" action is now more distinguishable
+- Navbar sections are clearer
+
+#### Games added
+
+- Astroneer
+- Deadly Delivery
+- Granny: Chapter Two
+- Soulcalibur VI
+- A Gentleman's Dispute
+- Super Battle Golf
+- Cursed Words
+- Ducks Can Drive
+- Gorilla Tag
+- Jump Scare Mansion
+- Pit of Goblin
+- Very Very Valet
+- Cryo
+- Crawlspace
+- Big Ambitions
+
+#### Fixes
+
+- Actions on the profile selection screen are properly aligned
+- Several fixes for mod installation behaviours
+
+### 3.2.14
+#### Games added
+- Carrier Deck
+- Factory Planner
+- On-Together: Virtual Co-Working
+- Project Arrhythmia
+- Stolen Realm
+- The Farmer Was Replaced
+- YAPYAP
+
+#### Fixes
+- On Together automatically resolves the correct folder
+- Fixed linux_wrapper implementation that supports UMM. (Thanks to @alexneargarder)
+- Miside image fixed (Thanks to @Hythera)
+
+### 3.2.13
+#### Fixes
+- Linux behaviour used to automatically set WINEDLLOVERRIDES. This has been restored for now.
+- Launch argument display fixed in the Help section (Thanks to @alexneargarder).
+
+### 3.2.12
+#### Games added
+- KeyWe
+- Smushi Come Home
+- Crime Simulator
+- Scrap Mechanic
+- Baby Steps
+- Chill with You : Lo-Fi Story
+- Crawlspace 2
+- Goblin Buster: Incremental Tower Defense
+- MineMogul
+- Nuclear Option
+- Pushing it! Together - Sisyphus Co-op
+- RAM: Random Access Mayhem
+- Unfair Flips
+- RV There Yet
+- Crab Game
+- Cloverpit
+    - Xbox Game Pass PC support
+
+#### Performance
+- Mods.yml file size has been reduced by 99.35%
+    - This results in huge improvements to the performance of profiles
+    - You'll need to perform a changing action on the profile for it to take effect. This can be:
+        - Mod re-ordering
+        - Install/Uninstall/Enable/Disable
+    - Once done, accessing the profiles screen should be near instant
+- Local mod list is loaded asynchronously and is visible far quicker than before
+    - Significantly reduces time spent hanging waiting for the mod list to load
+
+#### Design changes
+- Mod card buttons have been made consistent and no longer take up the entire space
+    - Easier to visually scan
+    - Less mouse movement required
+- The online preview panel now has a different background colour
+- Scrollbars are now app-styled rather than native
+- Other tweaks to improve the user experience
+
+#### Flatpak builds
+
+Flatpack builds are now available for Linux users in the r2modman GitHub repository:
+https://github.com/ebkr/r2modmanPlus/releases/latest
+
+These builds are ideal for Steam Deck and can run in Game Mode.
+
+> There are currently issues with Steam Deck's `Gamescope` compositor where dropdowns appear under the window.
+You can use arrows to work around this. I'll look into a solution further down the line.
+This issue is not present when running in Desktop Mode.
+
+### 3.2.11
+#### Games added
+- Aeruta
+- Beetleball (playtest version)
+- Football Manager 26
+- Necropolis
+- Super Fantasy Kingdom
+- Vigil
+
+#### Fixes
+- PEAK image has been restored
+- Steam directory resolution improvements on Linux platforms (thanks to @RossBrunton)
+
+### 3.2.10
+#### Games added
+- Bendy and the Ink Machine
+- Forsaken Frontiers
+- Return From Core
+- Mimesis
+- Five Nights at Freddy's: Into the Pit
+  - EGS support
+- Broforce
+- Megabonk
+  - Linux executable can now be selected
+
+#### Bugs fixed
+- Being offline no longer prevents the manager from loading into a game
+- Updates are now checked on app startup instead of after game selection
+- EGS games can be launched again
+
+### 3.2.9
+#### Games added
+- Megabonk
+- An Unfinished Game
+- Easy Delivery Co
+- Jump Space
+- CloverPit
+- Grey Hack
+- Slasher's Keep
+
+#### Changes
+- Hollow Knight: Silksong Linux can now be selected
+- NSFW indicator in the preview panel and mod list row in the online section
+- Preview metadata can be collapsed to reveal allow for more preview space
+
+### 3.2.8
+#### Changes
+- Config Editor
+  - Config Editor headers are now less obtrusive
+  - Config Editor now supports multi-select options
+  - When loading a large number of config files, a spinner is shown instead of hanging the application
+  - "Show more" functionality now restricts per line length until selected
+- Linux Native/Proton detection and install fixes
+
+### 3.2.7
+#### Changes
+- GTK version issue preventing launches should no longer be present
+- Resonite Renderer path in mods (affecting AudioBridge) should now resolve as intended
+- First-time install of Linux wrapper is now written to disk correctly
+
+### 3.2.6
+#### Changes
+- Linux wrapper is now resolved correctly if not previously present
+
+### 3.2.5
+#### Changes
+- Fixed several bugs causing rendering issues
+
+### 3.2.4
+#### Games added
+- Hollow Knight: Silksong
+- Resonite
+- House of Legacy
+- Beton Brutal
+- Pair A Dice
+- Maltese's Fluffy Onsen
+- Paper Animal Adventure
+- PAC-MAN WORLD Re-PAC
+- Darkwater
+
+#### Changes
+- Preview panel can now be resized
+- Download and install progress is now better reflected
+- The entire application has upgraded to Vue 3 along with some other internal tooling upgrades
+
 ### 3.2.3
 #### Games added
 - Len's Island

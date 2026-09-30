@@ -13,10 +13,10 @@ const isOpen = computed(() => store.state.modals.isProfileCodeExportModalOpen);
 const exportCode = computed(() => store.state.profileExport.exportCode);
 
 const isCopied = ref<boolean>(false);
-const exportCodeText = computed(() => isCopied.value ? 'Copied to clipboard' : exportCode.value);
+const exportCodeText = computed(() => isCopied.value ? t('translations.modals.codeExport.copied') : exportCode.value);
 
 function copyCode() {
-    InteractionProvider.instance.copyToClipboard(exportCode.value);
+    InteractionProvider.instance.copyToClipboard(exportCode.value!);
     isCopied.value = true;
     setTimeout(() => {
         isCopied.value = false;
@@ -32,12 +32,12 @@ function closeModal() {
     <ModalCard id="profile-exported-modal" :is-active="isOpen" @close-modal="closeModal" :can-close="true">
         <template v-slot:header>
             <h2 class='modal-title'>
-                {{ t('translations.pages.manager.modals.codeExport.title') }}
+                {{ t('translations.modals.codeExport.title') }}
             </h2>
         </template>
         <template v-slot:body>
             <p>
-                {{ t('translations.pages.manager.modals.codeExport.description') }}
+                {{ t('translations.modals.codeExport.description') }}
             </p>
             <code class="code">
                 <code>{{ exportCodeText }}</code>
@@ -48,7 +48,7 @@ function closeModal() {
         </template>
         <template v-slot:footer>
             <button class="button is-info" @click="closeModal">
-                {{ t('translations.pages.manager.modals.codeExport.done') }}
+                {{ t('translations.modals.codeExport.done') }}
             </button>
         </template>
     </ModalCard>

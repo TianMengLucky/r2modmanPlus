@@ -5,8 +5,8 @@ export function hookPathIpc(browserWindow: BrowserWindow) {
     ipcMain.on("node:path:join", (event, ...args) => {
         event.returnValue = path.join(...args);
     });
-    ipcMain.on("node:path:basename", (event, toResolve) => {
-        event.returnValue = path.basename(toResolve);
+    ipcMain.on("node:path:basename", (event, base, suffix) => {
+        event.returnValue = path.basename(base, suffix);
     });
     ipcMain.on("node:path:resolve", (event, ...args) => {
         event.returnValue = path.resolve(...args);
@@ -20,4 +20,7 @@ export function hookPathIpc(browserWindow: BrowserWindow) {
     ipcMain.on("node:path:dirname", (event, pathAsString: string) => {
         event.returnValue = path.dirname(pathAsString);
     });
+    ipcMain.on("node:path:sep", (event) => {
+        event.returnValue = path.sep;
+    })
 }

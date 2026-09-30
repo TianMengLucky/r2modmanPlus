@@ -1,4 +1,4 @@
-import * as yaml from 'yaml';
+import { load as parseYaml, dump as stringifyYaml } from "js-yaml";
 import { ImmutableProfile } from '../../model/Profile';
 import FsProvider from '../../providers/generic/file/FsProvider';
 import FileNotFoundError from '../../model/errors/FileNotFoundError';
@@ -18,6 +18,7 @@ import AsyncLock from 'async-lock';
 import FileTree from '../../model/file/FileTree';
 import ZipBuilder from '../../providers/generic/zip/ZipBuilder';
 import InteractionProvider from '../../providers/ror2/system/InteractionProvider';
+import { i18n } from '../../i18n/instance';
 import { ProfileApiClient } from '../profiles/ProfilesClient';
 import path from '../../providers/node/path/path';
 import Buffer from '../../providers/node/buffer/buffer';
@@ -26,6 +27,9 @@ export default class ProfileModList {
 
     public static SUPPORTED_CONFIG_FILE_EXTENSIONS = [".cfg", ".txt", ".json", ".yml", ".yaml", ".ini"];
     public static readonly MAX_EXPORT_AS_CODE_SIZE = 20000000; // 20MB
+
+    private static iconCache = new Map<string, string>();
+    private static iconCacheProfilePath: string | undefined;
 
     private static lock = new AsyncLock();
 
@@ -42,10 +46,9 @@ export default class ProfileModList {
         try {
             try {
                 const fileContent = (await fs.readFile(profile.joinToProfilePath('mods.yml'))).toString();
-                const parsedYaml = yaml.parse(fileContent) || [];
+                const parsedYaml: any = parseYaml(fileContent) || [];
                 for(let modIndex in parsedYaml){
                     const mod = new ManifestV2().fromJsObject(parsedYaml[modIndex]);
-                    await this.setIconPath(mod, profile);
                     parsedYaml[modIndex] = mod;
                 }
                 return parsedYaml;
@@ -71,7 +74,14 @@ export default class ProfileModList {
     public static async saveModList(profile: ImmutableProfile, modList: ManifestV2[]): Promise<R2Error | null> {
         const fs = FsProvider.instance;
         try {
-            const yamlModList: string = yaml.stringify(modList);
+            const yamlModList: string = stringifyYaml(modList, {
+                replacer: (key, value) => {
+                    if (key === 'icon') {
+                        return undefined;
+                    }
+                    return value;
+                }
+            });
             try {
                 await fs.writeFile(
                     profile.joinToProfilePath('mods.yml'),
@@ -118,7 +128,7 @@ export default class ProfileModList {
         if (saveError !== null) {
             return saveError;
         }
-        return this.getModList(profile);
+        return currentModList;
     }
 
     public static async removeMod(mod: ManifestV2, profile: ImmutableProfile): Promise<ManifestV2[] | R2Error> {
@@ -131,16 +141,15 @@ export default class ProfileModList {
         if (saveError !== null) {
             return saveError;
         }
-        // Return mod list, or R2 error. We don't care at this point.
-        return this.getModList(profile);
+        return newModList;
     }
 
-    public static async updateMods(mods: ManifestV2[], profile: ImmutableProfile, apply: (mod: ManifestV2) => void): Promise<ManifestV2[] | R2Error> {
+    public static async updateMods(modsToUpdate: ManifestV2[], profile: ImmutableProfile, apply: (mod: ManifestV2) => void): Promise<ManifestV2[] | R2Error> {
         const list: ManifestV2[] | R2Error = await this.getModList(profile);
         if (list instanceof R2Error) {
             return list;
         }
-        for (let mod of mods) {
+        for (let mod of modsToUpdate) {
             list.filter((filteringMod: ManifestV2) => filteringMod.getName() === mod.getName())
                 .forEach((filteringMod: ManifestV2) => {
                     apply(filteringMod);
@@ -150,7 +159,7 @@ export default class ProfileModList {
         if (saveErr instanceof R2Error) {
             return saveErr;
         }
-        return this.getModList(profile);
+        return list;
     }
 
     public static async updateMod(mod: ManifestV2, profile: ImmutableProfile, apply: (mod: ManifestV2) => Promise<void>): Promise<ManifestV2[] | R2Error> {
@@ -176,7 +185,7 @@ export default class ProfileModList {
         const exportModList: ExportMod[] = list.map((manifestMod: ManifestV2) => ExportMod.fromManifest(manifestMod));
         const exportFormat = new ExportFormat(profile.getProfileName(), exportModList);
         const builder = ZipProvider.instance.zipBuilder();
-        await builder.addBuffer("export.r2x", window.node.buffer.from(yaml.stringify(exportFormat)));
+        await builder.addBuffer("export.r2x", Buffer.from(stringifyYaml(exportFormat)));
         if (await FsProvider.instance.exists(profile.joinToProfilePath("BepInEx", "config"))) {
             await builder.addFolder("config", profile.joinToProfilePath('BepInEx', 'config'));
         }
@@ -223,9 +232,9 @@ export default class ProfileModList {
                 `Try running ${ManagerInformation.APP_NAME} as an administrator`);
         }
         const dir = await InteractionProvider.instance.selectFolder({
-            title: `Select the folder to export your profile to`,
+            title: i18n.global.t('translations.pages.settings.entries.exportProfile.dialog.title'),
             defaultPath: exportDirectory,
-            buttonLabel: 'Select export folder'
+            buttonLabel: i18n.global.t('translations.pages.settings.entries.exportProfile.dialog.button')
         });
         if (dir.length === 0) {
             return new R2Error("Failed to export profile", "No export folder was selected", null);
@@ -234,7 +243,7 @@ export default class ProfileModList {
         if (builder instanceof R2Error) {
             return builder;
         }
-        const exportPath = path.join(dir[0], `${profile.getProfileName()}_${new Date().getTime()}.r2z`);
+        const exportPath = path.join(dir[0]!, `${profile.getProfileName()}_${new Date().getTime()}.r2z`);
         await builder.createZip(exportPath);
         LinkProvider.instance.selectFile(exportPath);
         return exportPath;
@@ -283,22 +292,35 @@ export default class ProfileModList {
         return modList.filter(value => !value.isEnabled()).length;
     }
 
-    public static async setIconPath(mod: ManifestV2, profile: ImmutableProfile): Promise<void> {
+    public static async getModIcon(mod: ManifestV2, profile: ImmutableProfile): Promise<string> {
+        if (this.iconCacheProfilePath !== profile.getProfilePath()) {
+            this.iconCache.clear();
+            this.iconCacheProfilePath = profile.getProfilePath();
+        }
+
+        const cacheKey = `${mod.getName()}-${mod.getVersionNumber()}`;
+        const cached = this.iconCache.get(cacheKey);
+        if (cached !== undefined) {
+            return cached;
+        }
+
         const paths = [
             path.join(profile.getProfilePath(), "BepInEx", "plugins", mod.getName(), "icon.png"),
             path.join(PathResolver.MOD_ROOT, "cache", mod.getName(), mod.getVersionNumber().toString(), "icon.png"),
         ]
 
+        let icon = "/unknown.png";
         for (const iconPath of paths) {
             try {
                 const content = await FsProvider.instance.base64FromZip(iconPath);
-                mod.setIcon(`data:image/png;base64,${content}`);
-                return;
+                icon = `data:image/png;base64,${content}`;
+                break;
             } catch (e) {
                 continue;
             }
         }
 
-        mod.setIcon("/unknown.png");
+        this.iconCache.set(cacheKey, icon);
+        return icon;
     }
 }

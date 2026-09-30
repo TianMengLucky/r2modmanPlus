@@ -4,9 +4,11 @@ export type NodePathProvider = {
     join: (...paths: string[]) => string;
     dirname: (path: string) => string;
     extname: (path: string) => string;
-    basename: (path: string) => string;
+    basename: (path: string, suffix?: string) => string;
     relative: (pathOne: string, pathTwo: string) => string;
     resolve: (...paths: string[]) => string;
+    sep: string;
+
 }
 
 let implementation: () => NodePathProvider;
@@ -26,9 +28,10 @@ const nodePath: NodePathProvider = {
     join: (...args) => getImplementation().join(...args),
     dirname: path => getImplementation().dirname(path),
     extname: path => getImplementation().extname(path),
-    basename: path => getImplementation().basename(path),
+    basename: (path, suffix) => getImplementation().basename(path, suffix),
     relative: (pathOne, pathTwo) => getImplementation().relative(pathOne, pathTwo),
-    resolve: paths => getImplementation().resolve(paths),
+    resolve: (...args) => getImplementation().resolve(...args),
+    get sep() { return getImplementation().sep }
 };
 
 export default nodePath;

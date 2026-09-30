@@ -1,17 +1,18 @@
 <template>
+    <ManagerActivityBar />
     <div id="help-view">
         <Hero :title="t('translations.pages.help.hero.title')" :subtitle="t('translations.pages.help.hero.subtitle')" hero-type="primary"/>
-        <div
-            class="tabs sticky-top sticky-top--opaque sticky-top--no-shadow sticky-top--no-padding has-background-">
-            <ul>
-                <li v-for="(key, index) in tabs" :key="`tab-${key}`"
-                    :class="[{'is-active': activeTab === key}]"
-                    @click="changeTab(key)">
-                    <a>{{ t(`translations.pages.help.tabs.${key}`) }}</a>
-                </li>
-            </ul>
-        </div>
-        <div class="margin-right">
+        <div class="margin-right" id="help-content">
+            <div
+                class="tabs sticky-top sticky-top--opaque sticky-top--no-shadow sticky-top--no-padding has-background-">
+                <ul>
+                    <li v-for="(key, index) in tabs" :key="`tab-${key}`"
+                        :class="[{'is-active': activeTab === key}]"
+                        @click="changeTab(key)">
+                        <a>{{ t(`translations.pages.help.tabs.${key}`) }}</a>
+                    </li>
+                </ul>
+            </div>
             <br/>
             <div ref="general" v-if="activeTab === 'general'">
                 <h2 class="title is-5">
@@ -126,6 +127,7 @@
 
 <script lang="ts" setup>
 import {ExternalLink, Hero} from '../components/all';
+import ManagerActivityBar from '../components/navigation/ManagerActivityBar.vue';
 import GameRunnerProvider from '../providers/generic/game/GameRunnerProvider';
 import R2Error from '../model/errors/R2Error';
 import InteractionProvider from '../providers/ror2/system/InteractionProvider';
@@ -137,6 +139,7 @@ import {ComputedWrapperLaunchArguments} from "../components/computed/WrapperArgu
 import {getLaunchType, LaunchType} from "../model/real_enums/launch/LaunchType";
 import { useI18n } from 'vue-i18n';
 import ManagerInformation from '../_managerinf/ManagerInformation';
+import appWindow from '../providers/node/app/app_window';
 
 const store = getStore<State>();
 const { t } = useI18n();
@@ -151,7 +154,7 @@ const appName = computed(() => ManagerInformation.APP_NAME);
 watchEffect(async () => {
     const loaderArgs = doorstopTarget.value;
     const prerequisiteText = ComputedWrapperLaunchArguments.value;
-    if (window.app.getPlatform() === 'win32') {
+    if (appWindow.getPlatform() === 'win32') {
         launchArgs.value = loaderArgs;
         return;
     }
@@ -187,7 +190,7 @@ onMounted(() => {
             doorstopTarget.value = "";
             return;
         } else {
-            doorstopTarget.value = target;
+            doorstopTarget.value = target.map(value => `"${value}"`).join(' ');
         }
     });
 });
@@ -196,5 +199,13 @@ onMounted(() => {
 <style lang="scss" scoped>
 #help-view {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+}
+
+#help-content {
+    flex: 1;
 }
 </style>

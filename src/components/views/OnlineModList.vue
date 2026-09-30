@@ -25,7 +25,7 @@
                 </span>
             </template>
             <template v-slot:other-icons>
-                <DonateIconButton :mod="key" :extraRenderCondition="!readOnly"/>
+                <DonateIconButton :mod="key" :extraRenderCondition="!readOnly" v-if="key"/>
                 <span class='card-header-icon' v-if="isThunderstoreModInstalled(key) && !readOnly">
                     <i class='fas fa-check' v-tooltip.left="t('translations.pages.manager.online.modList.tooltips.installed')"></i>
                 </span>
@@ -35,7 +35,7 @@
                   <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.lastUpdated">
                     <template v-slot:date>
                         <span class="font-weight-normal">
-                            {{ d(key.getDateUpdated(), 'long', messages[locale].metadata.locale) }}
+                            {{ d(key.getDateUpdated(), 'long', dateLocale) }}
                         </span>
                     </template>
                   </i18n-t>
@@ -48,20 +48,20 @@
                   </i18n-t>
                 </p>
             </template>
-            <a class='card-footer-item' v-if="!readOnly" @click='showDownloadModal(key)'>
-              {{ t('translations.pages.manager.online.modList.actions.download') }}
-            </a>
-            <ExternalLink :url="key.getPackageUrl()" class='card-footer-item'>
-              {{ t('translations.pages.manager.online.modList.actions.website') }}
-              <i class="fas fa-external-link-alt margin-left margin-left--half-width"></i>
+            <button class='button' v-if="!readOnly" @click='showDownloadModal(key)'>
+                {{ t('translations.pages.manager.online.modList.actions.download') }}
+            </button>
+            <ExternalLink :url="key.getPackageUrl()" class='button'>
+                {{ t('translations.pages.manager.online.modList.actions.website') }}
+                <i class="fas fa-external-link-alt margin-left margin-left--half-width"></i>
             </ExternalLink>
             <template v-if="!readOnly">
-                <DonateButton :mod="key"/>
+                <DonateButton v-if="key" :mod="key"/>
             </template>
-            <div class='card-footer-item non-selectable'>
+            <div class='button non-selectable' disabled="true">
                 <span><i class='fas fa-download'/> {{key.getDownloadCount()}}</span>
             </div>
-            <div class='card-footer-item non-selectable'>
+            <div class='button non-selectable' disabled="true">
                 <span><i class='fas fa-thumbs-up'/> {{key.getRating()}}</span>
             </div>
         </ExpandableCard>
@@ -82,9 +82,12 @@ import { getStore } from '../../providers/generic/store/StoreProvider';
 import { State } from '../../store';
 import { computed, onMounted, ref } from 'vue';
 import {useI18n} from "vue-i18n";
+import { useDateLocale } from '../composables/DateLocaleComposable';
 
 const store = getStore<State>();
-const { t, d, messages, locale } = useI18n();
+const { t, d } = useI18n();
+const { getDateLocale } = useDateLocale();
+const dateLocale = getDateLocale();
 
 type OnlineModListProps = {
     pagedModList: ThunderstoreMod[];
@@ -112,7 +115,7 @@ function showDownloadModal(mod: ThunderstoreMod) {
     store.commit("openDownloadModVersionSelectModal", mod);
 }
 
-function getReadableDate(date: Date): string {
+function getReadableDate(date: Date | string): string {
     return valueToReadableDate(date);
 }
 
@@ -131,8 +134,16 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .font-weight-normal {
-  font-weight: normal;
+    font-weight: normal;
+}
+
+.button[disabled="true"] {
+    color: inherit !important;
+    opacity: 1 !important;
+    pointer-events: none;
+    background-color: transparent;
+    border: 0;
 }
 </style>

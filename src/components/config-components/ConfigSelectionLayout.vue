@@ -1,60 +1,78 @@
 <template>
-    <div>
+    <div class="config-editor-selection-body">
         <Hero
-            title="Config editor"
-            subtitle="Select a configuration file to edit"
+            :title="t('translations.pages.configEditor.hero.title')"
+            :subtitle="t('translations.pages.configEditor.hero.subtitle')"
             hero-type="primary"
         />
         <div class="notification is-warning is-square">
             <div class="container">
-                <p>
-                    Configuration files are generated after launching the game, with the mod installed, at least once.
-                </p>
+                <p>{{ t('translations.pages.configEditor.warning.content') }}</p>
             </div>
         </div>
-        <div class='is-shadowless'>
-            <div class='no-padding-left card-header-title'>
+        <div class="sticky-top sticky-top--opaque sticky-top--no-shadow sticky-top--no-padding">
+            <div class='card is-shadowless is-square'>
+                <div class='card-header-title'>
 
-                <div class="input-group input-group--flex margin-right">
-                    <label for="config-search" class="non-selectable">Search</label>
-                    <input
-                        v-model="filterText"
-                        id="config-search"
-                        class="input margin-right"
-                        type="text"
-                        placeholder="Search for config files"
-                        autocomplete="off"
-                    />
+                    <div class="input-group input-group--flex margin-right">
+                        <label for="config-search" class="non-selectable">{{ t('translations.pages.configEditor.actions.search.label') }}</label>
+                        <input
+                            v-model="filterText"
+                            id="config-search"
+                            class="input margin-right"
+                            type="text"
+                            :placeholder="t('translations.pages.configEditor.actions.search.placeholder')"
+                            autocomplete="off"
+                        />
+                    </div>
+
+                    <div class="input-group margin-right">
+                        <label for="config-sort-order" class="non-selectable">{{ t('translations.pages.configEditor.actions.sort.label') }}</label>
+                        <select id="config-sort-order"
+                                class="select select--content-spacing margin-right margin-right--half-width"
+                                v-model="sortOrder">
+                            <option v-for="(value, key) in SortConfigFile"
+                                    :value="value"
+                                    :key="`config-sort-order--${key}`">
+                                {{ t(`translations.enums.sortConfigFile.${key}`) }}
+                            </option>
+                        </select>
+                        <select id="config-sort-direction" class="select select--content-spacing"
+                                v-model="sortDirection">
+                            <option v-for="(value, key) in SortDirection"
+                                    :value="value"
+                                    :key="`config-sort-direction--${key}`">
+                                {{ t(`translations.enums.sortDirection.${key}`) }}
+                            </option>
+                        </select>
+                    </div>
+
                 </div>
-
-                <div class="input-group margin-right">
-                    <label for="config-sort-order" class="non-selectable">Sort</label>
-                    <select id="config-sort-order" class="select select--content-spacing margin-right margin-right--half-width" v-model="sortOrder">
-                        <option v-for="(key, index) in getSortOrderOptions()" :key="`${index}-deprecated-position-option`">
-                            {{key}}
-                        </option>
-                    </select>
-                    <select id="config-sort-direction" class="select select--content-spacing" v-model="sortDirection">
-                        <option v-for="(key, index) in getSortDirectionOptions()" :key="`${index}-deprecated-position-option`">
-                            {{key}}
-                        </option>
-                    </select>
-                </div>
-
             </div>
         </div>
-        <div class="margin-right">
+        <div class="margin-right config-editor-selection-items" v-if="!isLoadingFiles">
             <div v-for="(file, index) in sortedConfigFiles" :key="`config-file-${file.getName()}`">
                 <ExpandableCard
                     :id="`config-file-${index}`"
                     :visible="false">
                     <template v-slot:title>
-                        <span>{{file.getName()}}</span>
+                        <span>{{ file.getName() }}</span>
                     </template>
-                    <a class='card-footer-item' @click="editConfig(file)">Edit Config</a>
-                    <a class='card-footer-item' @click="openConfig(file)">Open File</a>
-                    <a class='card-footer-item' @click="deleteConfig(file)">Delete</a>
+                    <button class='button' @click="editConfig(file)">{{ t('translations.pages.configEditor.actions.editConfig') }}</button>
+                    <button class='button' @click="openConfig(file)">{{ t('translations.pages.configEditor.actions.openFile') }}</button>
+                    <button class='button' @click="deleteConfig(file)">
+                        <i class="fas fa-trash margin-right margin-right--half-width"/>
+                        {{ t('translations.pages.configEditor.actions.delete') }}
+                    </button>
                 </ExpandableCard>
+            </div>
+        </div>
+        <div v-else>
+            <div id="config-lookup">
+                <div class="fa-3x">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+                <p>{{ t('translations.pages.configEditor.loading') }}</p>
             </div>
         </div>
     </div>
@@ -72,19 +90,23 @@ import FsProvider from '../../providers/generic/file/FsProvider';
 import ManagerInformation from '../../_managerinf/ManagerInformation';
 import LinkProvider from '../../providers/components/LinkProvider';
 import ProfileModList from '../../r2mm/mods/ProfileModList';
-import { computed, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getStore } from '../../providers/generic/store/StoreProvider';
 import { State } from '../../store';
 import path from '../../providers/node/path/path';
+import { useI18n } from 'vue-i18n';
+import EnumResolver from '../../model/enums/_EnumResolver';
 
 const store = getStore<State>();
+const { t, d, messages, locale } = useI18n();
 
 const emits = defineEmits<{
     (e: 'edit', file: ConfigFile): void;
-}>()
+}>();
 
 const configFiles = ref<ConfigFile[]>([]);
 const shownConfigFiles = ref<ConfigFile[]>([]);
+const isLoadingFiles = ref<boolean>(true);
 
 const filterText = ref<string>('');
 const sortOrder = ref<SortConfigFile>(SortConfigFile.NAME);
@@ -96,16 +118,8 @@ function updateShownConfigFiles(configFiles: ConfigFile[]) {
 }
 
 watch(filterText, () => {
-    updateShownConfigFiles(configFiles.value as ConfigFile[])
+    updateShownConfigFiles(configFiles.value as ConfigFile[]);
 });
-
-function getSortOrderOptions() {
-    return Object.values(SortConfigFile);
-}
-
-function getSortDirectionOptions() {
-    return Object.values(SortDirection);
-}
 
 const sortedConfigFiles = computed(() => {
     return ConfigSort.sort(shownConfigFiles.value as ConfigFile[], sortOrder.value, sortDirection.value);
@@ -118,16 +132,16 @@ onMounted(async () => {
     if (tree instanceof R2Error) {
         return;
     }
-    tree.removeDirectories("dotnet");
-    tree.removeDirectories("_state");
+    tree.removeDirectories('dotnet');
+    tree.removeDirectories('_state');
     tree.navigateAndPerform(plugins => {
         plugins.getDirectories().forEach(value => {
             plugins.navigateAndPerform(sub => {
                 // Remove all manifest.json files from the root of the plugins subdirectory.
-                sub.removeFilesWithBasename("manifest.json");
-            }, value.getDirectoryName())
+                sub.removeFilesWithBasename('manifest.json');
+            }, value.getDirectoryName());
         });
-    }, "BepInEx", "plugins");
+    }, 'BepInEx', 'plugins');
     const files = tree.getDirectories().flatMap(value => value.getRecursiveFiles());
     const supportedExtensions = ProfileModList.SUPPORTED_CONFIG_FILE_EXTENSIONS;
     for (const file of files) {
@@ -138,13 +152,14 @@ onMounted(async () => {
     }
 
     // HACK: Force the UE4SS-settings.ini file for shimloader mod installs to be visible.
-    const ue4ssSettingsPath = tree.getFiles().find(x => x.toLowerCase().endsWith("ue4ss-settings.ini"));
+    const ue4ssSettingsPath = tree.getFiles().find(x => x.toLowerCase().endsWith('ue4ss-settings.ini'));
     if (ue4ssSettingsPath) {
         const lstat = await fs.lstat(ue4ssSettingsPath);
-        configFiles.value.push(new ConfigFile("UE4SS-settings.ini", ue4ssSettingsPath, lstat.mtime));
+        configFiles.value.push(new ConfigFile('UE4SS-settings.ini', ue4ssSettingsPath, lstat.mtime));
     }
 
     shownConfigFiles.value = [...configFiles.value];
+    isLoadingFiles.value = false;
 });
 
 async function deleteConfig(file: ConfigFile) {
@@ -154,9 +169,9 @@ async function deleteConfig(file: ConfigFile) {
         configFiles.value = configFiles.value.filter(value => value.getName() !== file.getName());
         updateShownConfigFiles(configFiles.value as ConfigFile[]);
     } catch (e) {
-        store.commit("error/handleError", R2Error.fromThrownValue(
+        store.commit('error/handleError', R2Error.fromThrownValue(
             e,
-            "Failed to delete config file",
+            'Failed to delete config file',
             `Try running ${ManagerInformation.APP_NAME} as an administrator.`
         ));
     }
@@ -167,7 +182,26 @@ function editConfig(file: ConfigFile) {
 }
 
 function openConfig(file: ConfigFile) {
-    LinkProvider.instance.openLink(file.getPath());
+    LinkProvider.instance.openPath(file.getPath());
 }
 
 </script>
+
+<style lang="scss" scoped>
+.config-editor-selection-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.config-editor-selection-items {
+    max-height: none;
+}
+
+#config-lookup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+</style>

@@ -24,4 +24,9 @@ export default class InteractionProviderImpl extends InteractionProvider {
     copyToClipboard(value: string) {
         window.electron.copyToClipboard(value);
     }
+
+    async getEnvironmentVariables() {
+        const envVars = await window.electron.getEnvironmentVariables();
+        return JSON.parse(envVars);
+    }
 }

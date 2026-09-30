@@ -1,5 +1,5 @@
 import GameInstructionGenerator from '../GameInstructionGenerator';
-import { GameInstruction } from '../../GameInstructions';
+import {GameInstruction} from '../../GameInstructions';
 import Game from '../../../../../model/game/Game';
 import Profile from '../../../../../model/Profile';
 
@@ -9,10 +9,16 @@ export default class ShimloaderGameInstructions extends GameInstructionGenerator
         const luaDir = profile.joinToProfilePath("shimloader", "mod");
         const pakDir = profile.joinToProfilePath("shimloader", "pak");
         const cfgDir = profile.joinToProfilePath("shimloader", "cfg");
+        const overlayDir = profile.joinToProfilePath("shimloader", "overlay");
 
         return {
-            moddedParameters: `--mod-dir "${luaDir}" --pak-dir "${pakDir}" --cfg-dir "${cfgDir}"`,
-            vanillaParameters: ""
+            moddedParameterList: [
+                '--mod-dir', luaDir,
+                '--pak-dir', pakDir,
+                '--cfg-dir', cfgDir,
+                '--overlay-dir', overlayDir
+            ],
+            vanillaParameterList: []
         }
     }
 }

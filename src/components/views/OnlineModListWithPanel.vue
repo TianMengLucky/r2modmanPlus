@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="online-cards">
         <OnlineRowCard
             v-for='(key, index) in pagedModList' :key="`online-${key.getFullName()}-${index}`"
             :image="getImageUrl(key)"
@@ -22,12 +22,15 @@
                     <i class='fas fa-map-pin' v-tooltip.left="t('translations.pages.manager.online.modList.tooltips.pinned.long')"></i>
                 </span>
                 <span class='card-header-icon' v-if="key.getDonationLink() && !readOnly">
-                    <ExternalLink :url="key.getDonationLink()" target="external" tag="span">
+                    <ExternalLink :url="key.getDonationLink()!" target="external" tag="span">
                         <i class='fas fa-heart' v-tooltip.left="t('translations.pages.manager.online.modList.tooltips.donate')"></i>
                     </ExternalLink>
                 </span>
                 <span class='card-header-icon' v-if="isThunderstoreModInstalled(key) && !readOnly">
                     <i class='fas fa-check' v-tooltip.left="t('translations.pages.manager.online.modList.tooltips.installed')"></i>
+                </span>
+                <span class='card-header-icon' v-if="key.getNsfwFlag()">
+                    <i class="fas fa-pause-circle" v-tooltip.left="t('translations.pages.manager.online.modList.tooltips.nsfw')"></i>
                 </span>
             </template>
         </OnlineRowCard>
@@ -55,7 +58,7 @@ type OnlineModListWithPanelProps = {
 }
 
 const props = withDefaults(defineProps<OnlineModListWithPanelProps>(), {
-    pagedModList: [],
+    pagedModList: () => [],
     selectedMod: null,
     readOnly: false,
 });
@@ -84,3 +87,9 @@ function emitCardClick(mod: ThunderstoreMod) {
 }
 
 </script>
+
+<style scoped lang="scss">
+#online-cards {
+    min-width: min-content;
+}
+</style>

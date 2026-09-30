@@ -28,11 +28,14 @@
     --v2-inactive-menu-item-color: #222;
 
     --input-placeholder-color: #b5b5b5;
+
+    --game-card-new-badge-background: rgba(18, 22, 45, 0.85);
+    --game-card-new-badge-border: rgba(100, 140, 255, 0.3);
 }
 
 html[class="html--dark"] {
     --v2-primary-text-color: white;
-    --v2-secondary-text-color: #eaeaea;
+    --v2-secondary-text-color: #aaacb6;
 
     --v2-link-text-color: #3ba5fd;
     --v2-link-active-text-color: white;

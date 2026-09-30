@@ -1,7 +1,9 @@
 import langEn, { dateTimeFormat as enDateTimeFormat } from './en';
 import langFr, { dateTimeFormat as frDateTimeFormat } from './fr';
-import langzhCN, { dateTimeFormat as zhCNDateTimeFormat } from './zh-CN';
 import { PlatformMessageFormat } from './base/platforms/PlatformMessageFormat';
+import { ModListStatusMessageFormat } from './base/modListStatus/ModListStatusMessageFormat';
+import { BannerMessageFormat } from './base/banners/BannerMessageFormat';
+import { ModalMessageFormat } from './base/modals/ModalMessageFormat';
 import { GameSelectionMessageFormat } from './base/pages/GameSelectionMessageFormat';
 import { SplashMessageFormat } from './base/pages/SplashMessageFormat';
 import { ProfileSelectionMessageFormat } from './base/pages/ProfileSelectionMessageFormat';
@@ -9,23 +11,26 @@ import { ManagerMessageFormat } from './base/pages/ManagerMessageFormat';
 import {EnumMessageFormat} from "./base/enums/EnumMessageFormat";
 import { HelpMessageFormat } from './base/pages/HelpMessageFormat';
 import { SettingsMessageFormat } from './base/pages/SettingsMessageFormat';
+import { ConfigEditorMessageFormat } from './base/pages/ConfigEditorMessageFormat';
+import { DownloadMonitorMessageFormat } from './base/pages/DownloadMonitorMessageFormat';
+import { LinuxSetupMessageFormat } from './base/pages/LinuxSetupMessageFormat';
+import { Error404MessageFormat } from './base/pages/Error404MessageFormat';
 
 export default {
     'en': langEn,
     'fr': langFr,
-    'zh-CN': langzhCN,
 };
 
 export const datetimeFormats = {
     [langEn.metadata.locale]: enDateTimeFormat,
     [langFr.metadata.locale]: frDateTimeFormat,
-    [langzhCN.metadata.locale]: zhCNDateTimeFormat,
 };
 
 // TODO - Use for language selection screens
 export type MessageMetadata = {
     name: string;
     locale: string;
+    wip?: string;
 }
 
 export type MessageFormat = {
@@ -38,25 +43,20 @@ export type MessageFormat = {
             manager: ManagerMessageFormat,
             help: HelpMessageFormat,
             settings: SettingsMessageFormat,
+            configEditor: ConfigEditorMessageFormat,
+            downloadMonitor: DownloadMonitorMessageFormat,
+            linuxSetup: LinuxSetupMessageFormat,
+            error404: Error404MessageFormat,
         },
         platforms: PlatformMessageFormat;
+        modListStatus: ModListStatusMessageFormat;
+        banners: BannerMessageFormat;
+        modals: ModalMessageFormat;
         enums: EnumMessageFormat;
     }
 }
 
 export type DateTimeFormat = {
-    short: {
-        year: string;
-        month: string;
-        day: string;
-    },
-    long: {
-        year: string;
-        month: string;
-        day: string;
-        weekday: string;
-        hour: string;
-        minute: string;
-        hour12?: string; // If unspecified then is OS locale dependent
-    }
+    short: Intl.DateTimeFormatOptions;
+    long: Intl.DateTimeFormatOptions;
 }

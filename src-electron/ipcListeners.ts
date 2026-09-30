@@ -6,6 +6,7 @@ import path from 'path';
 
 let browserWindow: BrowserWindow;
 let app: App;
+const anyGlobal: any = global;
 
 export class Listeners {
     constructor(window: BrowserWindow, electronApp: App) {
@@ -18,11 +19,9 @@ ipcMain.on('get-browser-window', () => {
     browserWindow.webContents.send('receive-browser-window', browserWindow);
 });
 
-ipcMain.handle('update-app', async () => {
-    if (typeof process.env.APPIMAGE !== 'undefined' || !process.execPath.startsWith(os.tmpdir())) {
-        electronUpdater.autoUpdater.autoDownload = true;
-        await electronUpdater.autoUpdater.checkForUpdatesAndNotify();
-    }
+ipcMain.on('update-app', () => {
+    if (process.env.FLATPAK_ID) return;
+    electronUpdater.autoUpdater.checkForUpdatesAndNotify();
 });
 
 ipcMain.on('install-via-thunderstore', (installString) => {
@@ -56,7 +55,7 @@ ipcMain.on('restart', () => {
 
 ipcMain.on('get-assets-path', () => {
     if (process.env.PROD) {
-        browserWindow.webContents.send('receive-assets-path', global.__statics);
+        browserWindow.webContents.send('receive-assets-path', anyGlobal.__statics);
     } else {
         browserWindow.webContents.send('receive-assets-path', 'src/statics/');
     }

@@ -3,27 +3,36 @@
         <div class="search-and-sort">
             <SearchAndSort />
         </div>
+
         <DisableModModal />
         <UninstallModModal />
         <AssociatedModsModal />
 
+        <ManagerUpdateBanner/>
+        <ConcerningPackageBanner/>
+
         <slot name="above-list"></slot>
+
+        <div class="tags has-addons" v-if="filters.size > 0">
+            <span class="margin-right" v-for="filter in filters">
+                <a href="#" @click="removeFilter(filter)">
+                    <div class="tag has-addons">
+                        <span>{{ filter }}</span>
+                    </div>
+                    <span class="tag is-delete">&nbsp;</span>
+                </a>
+            </span>
+        </div>
 
         <div class="mod-list-content">
             <div class="draggable-content">
-                <draggable v-model='draggableList'
-                           group="local-mods"
-                           handle=".handle"
-                           @start="drag=store.getters['profile/canSortMods']"
-                           @end="drag=false"
-                           :force-fallback="true"
-                           :scroll-sensitivity="100"
-                           item-key="id">
-                    <template #item="{element}">
-                        <local-mod-card
-                            :mod="element" />
+                <Suspense>
+                    <LocalModDraggableList/>
+
+                    <template #fallback>
+                        <SkeletonLocalModCard :mod="mod" v-for="mod of visibleModList"/>
                     </template>
-                </draggable>
+                </Suspense>
             </div>
         </div>
 
@@ -32,36 +41,27 @@
 </template>
 
 <script lang="ts" setup>
-import Draggable from 'vuedraggable';
-import R2Error from '../../model/errors/R2Error';
-import { ImmutableProfile } from '../../model/Profile';
 import AssociatedModsModal from './LocalModList/AssociatedModsModal.vue';
 import DisableModModal from './LocalModList/DisableModModal.vue';
 import UninstallModModal from './LocalModList/UninstallModModal.vue';
-import LocalModCard from './LocalModList/LocalModCard.vue';
 import SearchAndSort from './LocalModList/SearchAndSort.vue';
 import { getStore } from '../../providers/generic/store/StoreProvider';
 import { State } from '../../store';
-import { computed } from 'vue';
+import { computed, defineAsyncComponent } from 'vue';
+import SkeletonLocalModCard from './LocalModList/SkeletonLocalModCard.vue';
+import ManagerUpdateBanner from '../banner/ManagerUpdateBanner.vue';
+import ConcerningPackageBanner from '@r2/components/banner/ConcerningPackageBanner.vue';
 
 const store = getStore<State>();
 
-const profile = computed<ImmutableProfile>(() => store.getters['profile/activeProfile'].asImmutableProfile());
-const draggableList = computed({
-    get() {
-        return store.getters['profile/visibleModList'];
-    },
-    set(newList: string) {
-        try {
-            store.dispatch(
-                'profile/saveModListToDisk',
-                {mods: newList, profile: profile.value}
-            );
-        } catch (e) {
-            store.commit('error/handleError', R2Error.fromThrownValue(e));
-        }
-    }
-});
+const LocalModDraggableList = defineAsyncComponent(() => import('./LocalModList/LocalModDraggableList.vue'));
+
+const visibleModList = computed(() => store.getters['profile/visibleModList']);
+const filters = computed(() => store.state.profile.filters);
+
+function removeFilter(filter: string) {
+    store.commit('profile/removeFilter', filter);
+}
 </script>
 
 <style lang="scss" scoped>
@@ -73,7 +73,6 @@ const draggableList = computed({
     .mod-list-content {
         flex: 1;
         overflow-y: auto;
-        padding-right: 1rem;
     }
 }
 </style>

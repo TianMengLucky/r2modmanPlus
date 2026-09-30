@@ -92,7 +92,7 @@ watchEffect(async () => {
 
 // Required to trigger a re-render of the modlist in preview step
 // when the online modlist is refreshed.
-watch(store.state.tsMods.mods, async() => {
+watch(() => store.state.tsMods.mods, async() => {
     if (profileImportContent.value === null) {
         return;
     }
@@ -109,12 +109,12 @@ async function onFileOrCodeSelect(mode: 'FILE' | 'CODE') {
         activeStep.value = 'IMPORT_FILE';
         Promise.resolve().then(async () => {
             const files = await InteractionProvider.instance.selectFile({
-                title: 'Import Profile',
+                title: t('translations.modals.importProfile.dialogTitle'),
                 filters: [{
                     name: "*",
                     extensions: ["r2z"]
                 }],
-                buttonLabel: 'Import'
+                buttonLabel: t('translations.modals.importProfile.dialogButton')
             });
             await validateProfileFile(files);
         });
@@ -144,8 +144,10 @@ async function validateProfileFile(files: string[] | null) {
         return;
     }
 
+    const selectedFile = files[0]!;
+
     try {
-        const yamlContent = await ProfileUtils.readProfileFile(files[0]);
+        const yamlContent = await ProfileUtils.readProfileFile(selectedFile);
         profileImportContent.value = await ProfileUtils.parseYamlToExportFormat(yamlContent);
         profileMods.value = await ProfileUtils.exportModsToCombos(
             profileImportContent.value.getMods(),
@@ -158,7 +160,7 @@ async function validateProfileFile(files: string[] | null) {
         return;
     }
 
-    profileImportFilePath.value = files[0];
+    profileImportFilePath.value = selectedFile;
 
     if (profileMods.value.unknown.length > 0) {
         // Sometimes the reason some packages are unknown is that
@@ -254,11 +256,11 @@ async function onImportTargetSelected() {
 
 async function importProfile(targetProfileName: string, mods: ExportMod[], zipPath: string) {
     activeStep.value = 'PROFILE_IS_BEING_IMPORTED';
-    importPhaseDescription.value = t('translations.pages.profileSelection.importProfileModal.states.importInProgress.title.downloadingMods');
+    importPhaseDescription.value = t('translations.modals.importProfile.states.importInProgress.title.downloadingMods');
     const progressCallback = (state: number|string, modName: string, progress: number) => {
         return typeof state === "number"
-            ? importPhaseDescription.value = t('translations.pages.profileSelection.importProfileModal.states.importInProgress.title.downloadingModsWithGoal', {progress: Math.floor((state / profileTotalDownloadSize.value) * 100), totalSize: FileUtils.humanReadableSize(profileTotalDownloadSize.value), modName: modName })
-            : importPhaseDescription.value = t(`translations.pages.profileSelection.importProfileModal.states.importInProgress.title.${state}`, {progress: progress, totalSize: FileUtils.humanReadableSize(profileTotalDownloadSize.value), modName: modName })
+            ? importPhaseDescription.value = t('translations.modals.importProfile.states.importInProgress.title.downloadingModsWithGoal', {progress: Math.floor((state / profileTotalDownloadSize.value) * 100), totalSize: FileUtils.humanReadableSize(profileTotalDownloadSize.value), modName: modName })
+            : importPhaseDescription.value = t(`translations.modals.importProfile.states.importInProgress.title.${state}`, {progress: progress, totalSize: FileUtils.humanReadableSize(profileTotalDownloadSize.value), modName: modName })
     };
     const isUpdate = importUpdateSelection.value === 'UPDATE';
 
@@ -268,7 +270,7 @@ async function importProfile(targetProfileName: string, mods: ExportMod[], zipPa
 
         await store.dispatch('download/downloadToCache', {combos, progressCallback});
         await ProfileUtils.populateImportedProfile(combos, mods, targetProfileName, isUpdate, zipPath, (status, modName, progress) => {
-            importPhaseDescription.value = t(`translations.pages.profileSelection.importProfileModal.states.importInProgress.title.${status}`, { progress: progress, modName: modName });
+            importPhaseDescription.value = t(`translations.modals.importProfile.states.importInProgress.title.${status}`, { progress: progress, modName: modName });
         });
     } catch (e) {
         await store.dispatch('profiles/ensureProfileExists');
@@ -292,19 +294,19 @@ function onContentOrPathNotSet() {
     <ModalCard id="import-profile-from-file-or-code-modal" v-if="activeStep === 'FILE_CODE_SELECTION'" key="FILE_CODE_SELECTION" :is-active="isOpen" @close-modal="closeModal">
         <template v-slot:header>
             <h2 class="modal-title">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.fileCodeSelection.title') }}
+                {{ t('translations.modals.importProfile.states.fileCodeSelection.title') }}
             </h2>
         </template>
         <template v-slot:footer>
             <button id="modal-import-profile-file"
                     class="button is-info"
                     @click="onFileOrCodeSelect('FILE')">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.fileCodeSelection.actions.fromFile') }}
+                {{ t('translations.modals.importProfile.states.fileCodeSelection.actions.fromFile') }}
             </button>
             <button id="modal-import-profile-code"
                     class="button is-primary"
                     @click="onFileOrCodeSelect('CODE')">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.fileCodeSelection.actions.fromCode') }}
+                {{ t('translations.modals.importProfile.states.fileCodeSelection.actions.fromCode') }}
             </button>
         </template>
     </ModalCard>
@@ -312,12 +314,12 @@ function onContentOrPathNotSet() {
     <ModalCard id="import-profile-from-file-modal" v-else-if="activeStep === 'IMPORT_FILE'" key="IMPORT_FILE" :is-active="isOpen" @close-modal="closeModal">
         <template v-slot:header>
             <h2 class="modal-title">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.fromFile.title') }}
+                {{ t('translations.modals.importProfile.states.fromFile.title') }}
             </h2>
         </template>
         <template v-slot:footer>
             <p>
-                {{ t('translations.pages.profileSelection.importProfileModal.states.fromFile.content') }}
+                {{ t('translations.modals.importProfile.states.fromFile.content') }}
             </p>
         </template>
     </ModalCard>
@@ -325,7 +327,7 @@ function onContentOrPathNotSet() {
     <ModalCard id="import-profile-from-code-modal" v-else-if="activeStep === 'IMPORT_CODE'" :can-close="!importViaCodeInProgress" key="IMPORT_CODE" :is-active="isOpen" @close-modal="closeModal">
         <template v-slot:header>
             <h2 class="modal-title">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.importCode.title') }}
+                {{ t('translations.modals.importProfile.states.importCode.title') }}
             </h2>
         </template>
         <template v-slot:body>
@@ -336,13 +338,13 @@ function onContentOrPathNotSet() {
                 class="input"
                 type="text"
                 ref="profileCodeInput"
-                :placeholder="t('translations.pages.profileSelection.importProfileModal.states.importCode.enterCodePlaceholder')"
+                :placeholder="t('translations.modals.importProfile.states.importCode.enterCodePlaceholder')"
                 autocomplete="off"
             />
             <br />
             <br />
             <span class="tag is-danger" v-if="profileImportCode !== '' && !isProfileCodeValid">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.importCode.tagStates.invalid') }}
+                {{ t('translations.modals.importProfile.states.importCode.tagStates.invalid') }}
             </span>
         </template>
         <template v-slot:footer>
@@ -352,10 +354,10 @@ function onContentOrPathNotSet() {
                 class="button is-info"
                 @click="onProfileCodeEntered();">
                 <template v-if="importViaCodeInProgress">
-                    {{ t('translations.pages.profileSelection.importProfileModal.states.importCode.actions.loading') }}
+                    {{ t('translations.modals.importProfile.states.importCode.actions.loading') }}
                 </template>
                 <template v-else>
-                    {{ t('translations.pages.profileSelection.importProfileModal.states.importCode.actions.proceed') }}
+                    {{ t('translations.modals.importProfile.states.importCode.actions.proceed') }}
                 </template>
             </button>
         </template>
@@ -364,19 +366,19 @@ function onContentOrPathNotSet() {
     <ModalCard id="import-profile-refresh-mod-list-modal" v-else-if="activeStep === 'REFRESH_MOD_LIST'" key="REFRESH_MOD_LIST" :is-active="isOpen" :can-close="false">
         <template v-slot:header>
             <h2 class="modal-title">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.refresh.title') }}
+                {{ t('translations.modals.importProfile.states.refresh.title') }}
             </h2>
         </template>
         <template v-slot:footer>
             <div>
                 <p>
-                    {{ t('translations.pages.profileSelection.importProfileModal.states.refresh.description') }}
+                    {{ t('translations.modals.importProfile.states.refresh.content.description') }}
                 </p>
                 <p v-if="store.getters['download/activeDownloadCount'] > 0" class="margin-top">
-                    {{ t('translations.pages.profileSelection.importProfileModal.states.refresh.waitingForModDownloads') }}
+                    {{ t('translations.modals.importProfile.states.refresh.content.waitingForModDownloads') }}
                 </p>
                 <p v-else class="margin-top">
-                    {{ t(`translations.pages.profileSelection.importProfileModal.states.refresh.refreshStatus.${store.state.tsMods.thunderstoreModListUpdateStatus}`, { progress: store.state.tsMods.thunderstoreModListUpdateProgress }) }}
+                    {{ t(`translations.modListStatus.${store.state.tsMods.thunderstoreModListUpdateStatus}`, { progress: store.state.tsMods.thunderstoreModListUpdateProgress }) }}
                 </p>
             </div>
         </template>
@@ -385,23 +387,23 @@ function onContentOrPathNotSet() {
     <ModalCard id="review-profile-import-modal" v-else-if="activeStep === 'REVIEW_IMPORT'" key="REVIEW_IMPORT" :is-active="isOpen" @close-modal="closeModal">
         <template v-slot:header>
             <h2 class="modal-title">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.reviewImport.title') }}
+                {{ t('translations.modals.importProfile.states.reviewImport.title') }}
             </h2>
         </template>
         <template v-slot:body>
             <div v-if="knownProfileMods.length === 0 || profileMods.unknown.length > 0" class="notification is-warning">
                 <p>
-                    {{ t('translations.pages.profileSelection.importProfileModal.states.reviewImport.content.notFoundDisclaimer') }}
+                    {{ t('translations.modals.importProfile.states.reviewImport.content.notFoundDisclaimer') }}
                 </p>
                 <p class="margin-top">{{ unknownProfileModNames }}</p>
 
                 <p v-if="knownProfileMods.length === 0" class="margin-top">
-                    {{ t('translations.pages.profileSelection.importProfileModal.states.reviewImport.content.ensureCorrectProfile') }}
+                    {{ t('translations.modals.importProfile.states.reviewImport.content.ensureCorrectProfile') }}
                 </p>
             </div>
 
             <p v-if="knownProfileMods.length > 0 && profileMods.unknown.length > 0" class="margin-bottom">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.reviewImport.content.packagesWillBeInstalled') }}
+                {{ t('translations.modals.importProfile.states.reviewImport.content.packagesWillBeInstalled') }}
             </p>
             <OnlineModList
                 v-if="knownProfileMods.length > 0"
@@ -419,7 +421,7 @@ function onContentOrPathNotSet() {
                     type="checkbox"
                 >
                 <label for="partialImportAllowedCheckbox">
-                    {{ t('translations.pages.profileSelection.importProfileModal.states.reviewImport.actions.acknowledgement') }}
+                    {{ t('translations.modals.importProfile.states.reviewImport.actions.acknowledgement') }}
                 </label>
             </div>
 
@@ -430,7 +432,7 @@ function onContentOrPathNotSet() {
                 :disabled="knownProfileMods.length === 0 || (profileMods.unknown.length > 0 && !isPartialImportAllowed)"
                 @click="onProfileReviewConfirmed"
             >
-                {{ t('translations.pages.profileSelection.importProfileModal.states.reviewImport.actions.proceed') }}
+                {{ t('translations.modals.importProfile.states.reviewImport.actions.proceed') }}
             </button>
 
         </template>
@@ -439,19 +441,19 @@ function onContentOrPathNotSet() {
     <ModalCard id="import-or-update-profile-selection-modal" v-else-if="activeStep === 'IMPORT_UPDATE_SELECTION'" key="IMPORT_UPDATE_SELECTION" :is-active="isOpen" @close-modal="closeModal">
         <template v-slot:header>
             <h2 class="modal-title">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.willImportOrUpdate.title') }}
+                {{ t('translations.modals.importProfile.states.willImportOrUpdate.title') }}
             </h2>
         </template>
         <template v-slot:footer>
             <button id="modal-import-new-profile"
                     class="button is-info"
                     @click="onCreateOrUpdateSelect('CREATE')">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.willImportOrUpdate.actions.newProfile') }}
+                {{ t('translations.modals.importProfile.states.willImportOrUpdate.actions.newProfile') }}
             </button>
             <button id="modal-update-existing-profile"
                     class="button is-primary"
                     @click="onCreateOrUpdateSelect('UPDATE')">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.willImportOrUpdate.actions.existingProfile') }}
+                {{ t('translations.modals.importProfile.states.willImportOrUpdate.actions.existingProfile') }}
             </button>
         </template>
     </ModalCard>
@@ -459,12 +461,12 @@ function onContentOrPathNotSet() {
     <ModalCard id="import-add-profile-modal" v-else-if="activeStep === 'ADDING_PROFILE'" key="ADDING_PROFILE" :is-active="isOpen" @close-modal="closeModal">
         <template v-slot:header>
             <h2 class="modal-title">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.title') }}
+                {{ t('translations.modals.importProfile.states.addProfile.title') }}
             </h2>
         </template>
         <template v-slot:body v-if="importUpdateSelection === 'CREATE'">
             <p>
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.content.create.description') }}
+                {{ t('translations.modals.importProfile.states.addProfile.content.create.description') }}
             </p>
             <br/>
             <input
@@ -478,23 +480,23 @@ function onContentOrPathNotSet() {
             />
             <br/><br/>
             <span class="tag is-dark" v-if="makeProfileNameSafe(targetProfileName) === ''">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.tagStates.required') }}
+                {{ t('translations.modals.importProfile.states.addProfile.tagStates.required') }}
             </span>
             <span class="tag is-success" v-else-if="!doesProfileExist(targetProfileName)">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.tagStates.valid', { profileName: makeProfileNameSafe(targetProfileName) }) }}
+                {{ t('translations.modals.importProfile.states.addProfile.tagStates.valid', { profileName: makeProfileNameSafe(targetProfileName) }) }}
             </span>
             <span class="tag is-danger" v-else>
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.tagStates.error', { profileName: makeProfileNameSafe(targetProfileName) }) }}
+                {{ t('translations.modals.importProfile.states.addProfile.tagStates.error', { profileName: makeProfileNameSafe(targetProfileName) }) }}
             </span>
         </template>
         <template v-slot:body v-else-if="importUpdateSelection === 'UPDATE'">
             <div class="notification is-warning">
                 <p>
-                    {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.content.update.contentsWillBeOverwritten') }}
+                    {{ t('translations.modals.importProfile.states.addProfile.content.update.contentsWillBeOverwritten') }}
                 </p>
             </div>
             <p>
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.content.update.selectProfile') }}
+                {{ t('translations.modals.importProfile.states.addProfile.content.update.selectProfile') }}
             </p>
             <br/>
             <select class="select" v-model="targetProfileName">
@@ -503,18 +505,18 @@ function onContentOrPathNotSet() {
         </template>
         <template v-slot:footer v-if="importUpdateSelection === 'CREATE'">
             <button id="modal-create-profile-invalid" class="button is-danger" v-if="doesProfileExist(targetProfileName)">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.actions.create') }}
+                {{ t('translations.modals.importProfile.states.addProfile.actions.create') }}
             </button>
             <button id="modal-create-profile" class="button is-info" v-else @click="onImportTargetSelected()">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.actions.create') }}
+                {{ t('translations.modals.importProfile.states.addProfile.actions.create') }}
             </button>
         </template>
         <template v-slot:footer v-else-if="importUpdateSelection === 'UPDATE'">
             <button id="modal-update-profile-invalid" class="button is-danger" v-if="!doesProfileExist(targetProfileName)">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.actions.update', { profileName: targetProfileName }) }}
+                {{ t('translations.modals.importProfile.states.addProfile.actions.update', { profileName: targetProfileName }) }}
             </button>
             <button id="modal-update-profile" class="button is-info" v-else @click="onImportTargetSelected()">
-                {{ t('translations.pages.profileSelection.importProfileModal.states.addProfile.actions.update', { profileName: targetProfileName }) }}
+                {{ t('translations.modals.importProfile.states.addProfile.actions.update', { profileName: targetProfileName }) }}
             </button>
         </template>
     </ModalCard>
@@ -525,9 +527,9 @@ function onContentOrPathNotSet() {
         </template>
         <template v-slot:footer>
             <p>
-                {{ t('translations.pages.profileSelection.importProfileModal.states.importInProgress.content.waitMessage') }}
+                {{ t('translations.modals.importProfile.states.importInProgress.content.waitMessage') }}
                 <br><br>
-                {{ t('translations.pages.profileSelection.importProfileModal.states.importInProgress.content.doNotClose', { appName: appName }) }}
+                {{ t('translations.modals.importProfile.states.importInProgress.content.doNotClose', { appName: appName }) }}
             </p>
         </template>
     </ModalCard>
